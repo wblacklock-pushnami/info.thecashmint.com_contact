@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact the CashMint Team — TheCashMint</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23117f72'/%3E%3Ctext x='50%25' y='52%25' font-family='Arial,sans-serif' font-size='38' font-weight='800' fill='white' text-anchor='middle' dominant-baseline='middle'%3E$%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231d4ed8'/%3E%3Ctext x='50%25' y='52%25' font-family='Arial,sans-serif' font-size='38' font-weight='800' fill='white' text-anchor='middle' dominant-baseline='middle'%3E$%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Mada:wght@500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -146,6 +146,35 @@
     article p, article li { color: var(--ink); line-height: 1.65; }
     article ul, article ol { padding-left: 22px; margin-bottom: 16px; }
     article li { margin-bottom: 6px; }
+
+    /* Data tables (e.g. CCPA category table) */
+    article .table-wrap { overflow-x: auto; margin: 0 0 20px; border: 1px solid var(--line); border-radius: 8px; }
+    article table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+    article table th, article table td {
+      text-align: left; vertical-align: top;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      line-height: 1.5;
+    }
+    article table tr:last-child th, article table tr:last-child td { border-bottom: none; }
+    article table thead th {
+      background: #f6f7fb;
+      font-family: 'Mada', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+      white-space: nowrap;
+    }
+    article table tbody th { font-family: 'Mada', sans-serif; font-weight: 600; color: var(--ink); width: 26%; }
+    article table .collected { text-align: center; width: 90px; font-family: 'Mada', sans-serif; font-weight: 700; }
+    article table .collected.yes { color: #1cb526; }
+    article table .collected.no { color: #a3a3a8; }
+    @media (max-width: 640px) {
+      article table { font-size: 13px; }
+      article table th, article table td { padding: 10px 10px; }
+    }
     article .intro {
       font-size: 17px;
       color: var(--ink);
