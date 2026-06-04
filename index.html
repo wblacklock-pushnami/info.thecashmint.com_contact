@@ -372,6 +372,152 @@
           })();
         </script>
 
+        <!-- ===== Opt Out of Web Push ===== -->
+        <style>
+          .pn-optout { margin-top: 32px; padding-top: 28px; border-top: 1px solid var(--line); }
+          .pn-optout__box {
+            background: var(--purple-tint);
+            border: 1px solid #d7d0f5;
+            border-left: 3px solid var(--push-purple);
+            border-radius: 10px;
+            padding: 20px 22px;
+          }
+          .pn-optout__box h2 { font-size: 19px; font-weight: 700; margin: 0 0 8px; color: var(--ink); }
+          .pn-optout__box p { margin: 0 0 16px; font-size: 14.5px; color: var(--ink-2); line-height: 1.55; }
+          .pn-optout__btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            height: 50px; padding: 0 26px;
+            background: var(--push-purple); color: #fff;
+            border: none; border-radius: 8px;
+            font-family: 'Mada', sans-serif; font-size: 15px; font-weight: 600;
+            letter-spacing: 0.03em; cursor: pointer; transition: background 0.15s;
+          }
+          .pn-optout__btn:hover { background: var(--dark-purple); }
+          .pn-optout__btn:focus-visible { outline: 2px solid var(--push-purple); outline-offset: 2px; }
+          .pn-optout__btn[disabled] { opacity: 0.65; cursor: default; }
+
+          .pn-modal { position: fixed; inset: 0; z-index: 1000; display: none; }
+          .pn-modal[aria-hidden="false"] { display: flex; align-items: center; justify-content: center; padding: 20px; }
+          .pn-modal__backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.55); }
+          .pn-modal__card {
+            position: relative; max-width: 420px; width: 100%;
+            background: var(--surface); border-radius: 14px;
+            padding: 32px 28px; text-align: center;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+          }
+          .pn-modal__check {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 64px; height: 64px; background: #1cb526; border-radius: 50%; margin-bottom: 16px;
+          }
+          .pn-modal__check svg { width: 32px; height: 32px; }
+          .pn-modal__card h2 { font-size: 22px; font-weight: 700; margin: 0 0 8px; }
+          .pn-modal__card p { font-size: 14.5px; color: var(--ink-2); margin: 0 0 22px; }
+          .pn-modal__ok {
+            display: inline-flex; align-items: center; justify-content: center;
+            height: 46px; padding: 0 28px;
+            background: var(--push-purple); color: #fff;
+            border: none; border-radius: 8px;
+            font-family: 'Mada', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;
+          }
+          .pn-modal__ok:hover { background: var(--dark-purple); }
+          .pn-modal__ok:focus-visible { outline: 2px solid var(--push-purple); outline-offset: 2px; }
+        </style>
+        <section class="pn-optout" aria-labelledby="pn-optout-title">
+          <div class="pn-optout__box">
+            <h2 id="pn-optout-title">Opt Out of Web Push</h2>
+            <p>Still receiving browser push notifications from us and want them to stop? Click below to unsubscribe this browser or device from web push notifications. No email or account details needed.</p>
+            <button type="button" class="pn-optout__btn" id="pn-optout-btn">Opt Out of Web Push</button>
+          </div>
+        </section>
+        <div class="pn-modal" id="pn-optout-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pn-optout-modal-title">
+          <div class="pn-modal__backdrop" data-pn-close></div>
+          <div class="pn-modal__card" role="document">
+            <div class="pn-modal__check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h2 id="pn-optout-modal-title">You&rsquo;ve been opted out</h2>
+            <p>This browser has been unsubscribed from web push notifications. To fully block them you can also reset notification permission in your browser settings.</p>
+            <button type="button" class="pn-modal__ok" id="pn-optout-ok" data-pn-close>OK</button>
+          </div>
+        </div>
+        <script>
+          (function() {
+            // ⚠️ TODO — add info.thecashmint.com's Pushnami site-ID key(s) here.
+            // CashMint's old live pages are offline (404), so the real key could not be
+            // pulled at build time the way it was for yourjobsonline / themoneyminutes.
+            // Grab the site ID(s) from the Pushnami dashboard for the thecashmint account
+            // and list them below, e.g.:  var KEYS = ['xxxxxxxxxxxxxxxxxxxxxxxx'];
+            // Until then the button still shows the success modal but does NOT actually
+            // unsubscribe anyone (no Pushnami SDK is loaded with an empty KEYS list).
+            var KEYS = [];
+
+            var btn = document.getElementById('pn-optout-btn');
+            var modal = document.getElementById('pn-optout-modal');
+            if (!btn || !modal) return;
+            var okBtn = document.getElementById('pn-optout-ok');
+            var lastFocus = null;
+            var busy = false;
+
+            function openModal() {
+              lastFocus = document.activeElement;
+              modal.setAttribute('aria-hidden', 'false');
+              if (okBtn) okBtn.focus();
+              document.addEventListener('keydown', onKeydown);
+            }
+            function closeModal() {
+              modal.setAttribute('aria-hidden', 'true');
+              document.removeEventListener('keydown', onKeydown);
+              btn.disabled = false;
+              btn.textContent = 'Opt Out of Web Push';
+              busy = false;
+              if (lastFocus && lastFocus.focus) lastFocus.focus();
+            }
+            function onKeydown(e) { if (e.key === 'Escape') closeModal(); }
+
+            Array.prototype.slice.call(modal.querySelectorAll('[data-pn-close]')).forEach(function(el) {
+              el.addEventListener('click', closeModal);
+            });
+
+            btn.addEventListener('click', function() {
+              if (busy) return;
+              busy = true;
+              btn.disabled = true;
+              btn.textContent = 'Opting you out…';
+
+              if (!KEYS.length) { openModal(); return; }
+
+              var finished = 0;
+              function afterAttempt(script, err) {
+                if (err) { try { console.warn((script && script.src) + ' failed', err); } catch (e) {} }
+                if (script && script.parentNode) script.parentNode.removeChild(script);
+                finished++;
+                if (finished === KEYS.length) openModal();
+              }
+              KEYS.forEach(function(key) {
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = 'https://api.pushnami.com/scripts/v1/pushnami-adv/' + key;
+                script.onerror = function(err) { afterAttempt(script, err); };
+                script.onload = function(e) {
+                  try {
+                    if (window.Pushnami && Pushnami.unsubscribe) {
+                      var p = Pushnami.unsubscribe();
+                      if (p && p.then) {
+                        p.then(function() { afterAttempt(e.target); })
+                         .catch(function(err) { afterAttempt(e.target, err); });
+                        return;
+                      }
+                    }
+                  } catch (err) { return afterAttempt(e.target, err); }
+                  afterAttempt(e.target);
+                };
+                document.head.appendChild(script);
+              });
+            });
+          })();
+        </script>
+        <!-- ===== /Opt Out of Web Push ===== -->
+
       </article>
     </main>
   </div>
